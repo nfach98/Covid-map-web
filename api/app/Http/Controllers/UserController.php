@@ -73,16 +73,16 @@ class UserController extends Controller
 
     public function logout(Request $request)
     {
-        if($request->bearerToken()){
+        if($request->header('token')){
             $query = User::select('name', 'username', 'api_token AS token')
-            ->where('api_token', $request->bearerToken());
+            ->where('api_token', $request->header('token'));
             $user = $query->first();
 
             if($user) {
                 $query->update([
                     'api_token' => null
                 ]);
-                return response()->json(['logout' => 'success'], $this->successStatus);
+                return response()->json(['status' => 'success'], $this->successStatus);
             } else {
                 return response()->json(['error' => 'Unauthorized'], 401);
             }
@@ -90,8 +90,6 @@ class UserController extends Controller
         else{
             return response()->json(['error' => 'Unauthorized'], 401);
         }
-
-        
     }
 
     /*public function details()
