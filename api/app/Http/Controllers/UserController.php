@@ -32,8 +32,16 @@ class UserController extends Controller
 
             if($user) {
                 Auth::login($user);
-                $user->createToken('nApp')->accessToken;
-                return $user;
+                $query->update([
+                    'api_token' => $user->createToken('nApp')->accessToken
+                ]);
+
+                $query = User::select('name', 'username', 'api_token AS token')
+                ->where([
+                    'username' => $request->username, 
+                    'password' => $request->password
+                ]); 
+                return $query->first();
             } else {
                 return response()->json(['error'=>'Unauthorized'], 401);
             }
@@ -65,26 +73,25 @@ class UserController extends Controller
 
     public function logout(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'token' => 'required',
-        ]);
+        if($request->bearerToken()){
+            $query = User::select('name', 'username', 'api_token AS token')
+            ->where('api_token', $request->bearerToken());
+            $user = $query->first();
 
-        if ($validator->fails()) {
-            return response()->json(['error'=>$validator->errors()], 401);            
+            if($user) {
+                $query->update([
+                    'api_token' => null
+                ]);
+                return response()->json(['logout' => 'success'], $this->successStatus);
+            } else {
+                return response()->json(['error' => 'Unauthorized'], 401);
+            }
         }
-
-        $query = User::select('name', 'username', 'api_token AS token')
-        ->where('api_token', $request->token);
-        $user = $query->first();
-
-        if($user) {
-            $query->update([
-                'api_token' => null
-            ]);
-            return response()->json(['logout' => 'success'], $this->successStatus);
-        } else {
+        else{
             return response()->json(['error' => 'Unauthorized'], 401);
         }
+
+        
     }
 
     /*public function details()
