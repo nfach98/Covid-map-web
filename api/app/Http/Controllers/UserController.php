@@ -23,25 +23,15 @@ class UserController extends Controller
         }
 
         else{
-            $query = User::select('name', 'username', 'api_token AS token')
-            ->where([
-                'username' => $request->username, 
-                'password' => $request->password
-            ]);
-            $user = $query->first();
+            $user = User::where('username', $request->username)->first();
 
-            if($user) {
+            if($user && is_null($user->api_token)) {
                 Auth::login($user);
-                $query->update([
-                    'api_token' => $user->createToken('nApp')->accessToken
-                ]);
+                $user = Auth::user();
+                $user->api_token = $user->createToken('nApp')->accessToken;
+                $user->save();
 
-                $query = User::select('name', 'username', 'api_token AS token')
-                ->where([
-                    'username' => $request->username, 
-                    'password' => $request->password
-                ]); 
-                return $query->first();
+                return $user;
             } else {
                 return response()->json(['error'=>'Unauthorized'], 401);
             }
