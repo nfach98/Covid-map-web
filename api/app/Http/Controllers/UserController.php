@@ -34,7 +34,7 @@ class UserController extends Controller
                 $success['token'] = $user->api_token;
                 $success['name'] =  $user->name;
 
-                return response()->json(['success'=>$success], $this->successStatus);
+                return $success;
             } else {
                 return response()->json(['error'=>'Unauthorized'], 401);
             }
@@ -62,7 +62,7 @@ class UserController extends Controller
         $success['token'] = $user->api_token;
         $success['name'] =  $user->name;
 
-        return response()->json(['success'=>$success], $this->successStatus);
+        return $success;
     }
 
     public function logout(Request $request)
