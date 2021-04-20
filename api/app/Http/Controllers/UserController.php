@@ -31,7 +31,10 @@ class UserController extends Controller
                 $user->api_token = $user->createToken('nApp')->accessToken;
                 $user->save();
 
-                return $user;
+                $success['token'] = $user->api_token;
+                $success['name'] =  $user->name;
+
+                return response()->json(['success'=>$success], $this->successStatus);
             } else {
                 return response()->json(['error'=>'Unauthorized'], 401);
             }
@@ -55,6 +58,7 @@ class UserController extends Controller
         $user = User::create($input);
         $user->api_token = $user->createToken('nApp')->accessToken;
         $user->save();
+        
         $success['token'] = $user->api_token;
         $success['name'] =  $user->name;
 
