@@ -72,6 +72,7 @@ class UserController extends Controller
                 $query->update([
                     'api_token' => null
                 ]);
+                Auth::logout();
                 return response()->json(['status' => 'success'], $this->successStatus);
             } else {
                 return response()->json(['error' => 'Unauthorized'], 401);
